@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
 	if (preAsseblerResult){
 	    continue;	
 	}else{
-	    freeHashTable(&hash_table);
-	    initHashTable(&hash_table, 6);
+        freeHashTable(&hash_table);
+        initHashTable(&hash_table, 6);
 	    inputFile = convertFile(argv[i],".am");
 	    preAsseblerResult = passOne(inputFile, &hash_table);
 	}

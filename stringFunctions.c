@@ -117,5 +117,3 @@ int hasMultipalCommas(char *str) {
     
     return 0;  /* No consecutive commas or trailing comma found found*/
 }
-
-

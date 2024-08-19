@@ -39,6 +39,19 @@ void set_cell_value(ram_array array, int cell_index, int value) {
         set_bit_in_cell(array, cell_index, i, bit_value);
     }
 }
+
+/*set the value from index 3. for addressing method */
+void set_cell_value_by_method(ram_array array, int cell_index, int value) {
+    int i;
+    /* Loop through bits from index 3 to 14 */
+    for (i = 3; i <= 14; i++) {
+        /* Extract the corresponding bit from the value */
+        int bit_value = (value >> (i - 3)) & 1;
+        /* Set the bit in the cell at the correct position */
+        set_bit_in_cell(array, cell_index, i, bit_value);
+    }
+}
+
 /*return binary cell*/
 int get_cell_value(ram_array array, int cell_index) {
     int value = 0;
@@ -73,7 +86,7 @@ char* cell_to_binary_string(int value) {
     return binary_str;
 }
 
-/* Sets the bits at index 0 to 3 based on the binary representation of the given value (0 to 15). */
+/* Sets the bits at specific range based on the binary representation of the given value (0 to 15). */
 void setOpcodeBit(set array, int value, int startIndex, int endIndex) {
   int i, bit, bitPosition;
   if (endIndex < startIndex)

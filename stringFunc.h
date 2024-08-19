@@ -19,4 +19,3 @@ char *convertFile(char *filename, char *newFileType);
 int hasMultipalCommas(char *str);
 
 #endif /* STRING_FUNC_H */
-

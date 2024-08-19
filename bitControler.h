@@ -22,12 +22,11 @@ void set_bit_in_cell(ram_array array, int cell_index, int bit_index_in_cell, int
 int get_bit_in_cell( ram_array array, int cell_index, int bit_index_in_cell);
 /*if have a value set the cell to this value*/
 void set_cell_value(ram_array array, int cell_index, int value);
+/*set the value from index 3. for addressing method */
+void set_cell_value_by_method(ram_array array, int cell_index, int value);
 /*return cell value*/
 int get_cell_value(ram_array array, int cell_index);
 /*return string of binary cell (word) example 000100000011010 to "000100000011010"*/
 char* cell_to_binary_string(int value);
-/* Sets the bits at spesific range based on the binary representation of the given value (0 to 15). */
+/* Sets the bits at specific range based on the binary representation of the given value (0 to 15). */
 void setOpcodeBit(set array, int value, int startIndex, int endIndex);
-
-
-

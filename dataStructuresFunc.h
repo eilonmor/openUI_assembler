@@ -53,4 +53,3 @@ void freeLinkedList(LinkedList* list);
 void freeHashTable(HashTable* hash_table);
 
 #endif /* DATA_STRUCT_H */
-

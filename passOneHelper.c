@@ -17,12 +17,29 @@ NameValuePair opcodeNameValue[NUM_OF_NAMES] = {
     {"dec", 8}, {"jmp", 9}, {"bne", 10}, {"red", 11},
     {"prn", 12}, {"jsr", 13}, {"rts", 14}, {"stop", 15}
 };
-
+/**/
+NameValuePair opcodeSizeWord[NUM_OF_NAMES] = {
+    {"mov", 3}, {"cmp", 3}, {"add", 3}, {"sub", 3},
+    {"lea", 3}, {"clr", 2}, {"not", 2}, {"inc", 2},
+    {"dec", 2}, {"jmp", 2}, {"bne", 2}, {"red", 2},
+    {"prn", 2}, {"jsr", 2}, {"rts", 1}, {"stop", 1}
+};
+/*return opcode value*/
 int getOpcode(char *name) {
     int i;
     for (i = 0; i < NUM_OF_NAMES; i++) {
         if (strcmp(opcodeNameValue[i].name, name) == 0) {
             return opcodeNameValue[i].value;
+        }
+    }
+    return -1;
+}
+/*return how much memmory each comand are taken (in most cases)*/
+int getOpcodeSizeWord(char *name) {
+    int i;
+    for (i = 0; i < NUM_OF_NAMES; i++) {
+        if (strcmp(opcodeSizeWord[i].name, name) == 0) {
+            return opcodeSizeWord[i].value;
         }
     }
     return -1;
@@ -62,6 +79,43 @@ int getOpcodeMethod(char *oprand, HashTable* hash_table) {
     return -1;  /* String does not match any of the patterns */
 }
 
+/*sets the value in a cell by addressing method*/
+void setByGetOpcodeMethod(ram_array array, int cell_index, int opcodeMethod,  char *arg, HashTable* hash_table, int registerIndexStart, int registerIndexEnd){
+    int stringToInt;
+    removeSpaces(arg);
+    switch (opcodeMethod)
+    {
+    case 0:
+        /*for A*/
+        set_bit_in_cell(array, cell_index,0,1);
+        /*set the number*/
+        set_cell_value_by_method(array,cell_index,atoi(arg + 1));
+        break;
+    case 1:
+        if (strcmp(searchHashTable(hash_table,arg,1),"-1") != 0 || strcmp(searchHashTable(hash_table,arg,2),"-1") != 0 )
+        {
+            /*its symbole that difined in this file so it "R"*/
+            set_bit_in_cell(array, cell_index,1,1);
+            set_cell_value_by_method(array,cell_index,atoi(searchHashTable(hash_table,arg,-1)));
+        }else{
+            /*is exstern*/
+            set_bit_in_cell(array, cell_index,0,1);
+        }
+        break;
+    case 2:
+	stringToInt = arg[strlen(arg) - 1] - '0';
+        setOpcodeBit(&array[cell_index],stringToInt,registerIndexStart,registerIndexEnd);
+        break;
+    case 3:
+	stringToInt = arg[strlen(arg) - 1] - '0';        
+	setOpcodeBit(&array[cell_index],stringToInt,registerIndexStart,registerIndexEnd);
+        break;        
+    default:
+        /*this error is for me.*/
+        fprintf(stderr,"case not exsists.\n");
+        break;
+    }
+}
 
 int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName, int countRowInFile, int *methodValue, int howMuchMethodToCheck,HashTable* hash_table){
     char *token;
@@ -96,13 +150,18 @@ int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName
     return errorHapend;
 }
 
-int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L) {
+int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L,ram_array array, int cell_index) {
     int targetStartIndex = 3, targetEndIndex = 6, sourceStartIndex = 7, sourceEndIndex = 10;
-    int errorHapend = 0, opcodeExists;
+    int registerTargetStart = 3, registerTargetEnd = 5, registerSourceStart = 6, registerSourceEnd = 8;
+    int errorHapend = 0, opcodeExists, getOpcodeMethodSystemNumber;
     int methodToCheck[4];
+    int stringToInt;
     char *token;
+    char *firstArg;
+    char *secondArg;
     set binaryMachineCode;
     errorHapend = hasMultipalCommas(sourceCodeOreder);
+    printf("value: %d, sourceCodeOreder: %s, countRowInFile: %d, L: %d, cell_index: %d\n",value,sourceCodeOreder,countRowInFile,L,cell_index);
     if (errorHapend)
     {
         fprintf(stderr,"Invalid commas: there is multipal commas at line number %d\n",countRowInFile);
@@ -111,14 +170,16 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
     switch (value) {
         /*mov*/
         case 0:
+            L++;
         /*get first oprand*/
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token,hash_table);
             if (opcodeExists != -1 && !(errorHapend))
             {
-                /*write the surce code*/
+                /*set the system surce oprand*/
                 setOpcodeBit(binaryMachineCode,opcodeExists+sourceStartIndex, sourceStartIndex,sourceEndIndex);
+                firstArg = strduppp(token);
             }            
             token = strtok(NULL, ",");
             /*if there is only 1 argument so print error*/
@@ -136,7 +197,9 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                     /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
                     if (opcodeExists != -1 && !(errorHapend))
                     {
+                        /*set the system target oprand*/
                         setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
+                        secondArg = strduppp(token);
                     }
                 }
                 /*move can get only 2 argument*/
@@ -146,6 +209,38 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                 errorHapend++;
                 }
             }
+            /*check if there is 2 registers, if has save it in one word*/
+            getOpcodeMethodSystemNumber = getOpcodeMethod(firstArg,hash_table);
+            if (getOpcodeMethodSystemNumber == 2 ||getOpcodeMethodSystemNumber == 3)
+            {
+                L++;
+                cell_index++;
+                removeSpaces(firstArg);
+		stringToInt = firstArg[strlen(firstArg) - 1] - '0'; 
+                setOpcodeBit(binaryMachineCode,stringToInt,registerSourceStart,registerSourceEnd);
+                getOpcodeMethodSystemNumber = getOpcodeMethod(secondArg,hash_table);
+                if (getOpcodeMethodSystemNumber == 2 ||getOpcodeMethodSystemNumber == 3)
+                {
+                    /*1 is transletion of command and the second is regiters*/
+                    /*todo: add set for 2 r*/
+		    stringToInt = secondArg[strlen(secondArg) - 1] - '0';
+                    setOpcodeBit(binaryMachineCode,stringToInt,registerTargetStart,registerTargetEnd);
+                }else if (getOpcodeMethodSystemNumber)
+                {
+                    L++;
+                    cell_index++;
+                    setByGetOpcodeMethod(array,cell_index,getOpcodeMethodSystemNumber,secondArg,hash_table,registerTargetStart,registerTargetEnd);
+                }
+                /*the first arg is not register*/
+            }else{
+                L++;
+                cell_index++;
+                setByGetOpcodeMethod(array,cell_index,getOpcodeMethodSystemNumber,firstArg,hash_table,registerSourceStart,registerSourceEnd);
+                L++;
+                cell_index++;
+                getOpcodeMethodSystemNumber = getOpcodeMethod(secondArg,hash_table);
+                setByGetOpcodeMethod(array,cell_index,getOpcodeMethodSystemNumber,secondArg,hash_table,registerTargetStart,registerTargetEnd);
+            }            
             break;
             /*cmp*/
         case 1:
@@ -367,4 +462,3 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
     }
     return errorHapend;
 }
-

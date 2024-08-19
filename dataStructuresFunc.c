@@ -109,7 +109,8 @@ int hashFunction(char* key, int size) {
     }else if (strcmp(key, ".symbole") == 0) {
         return 5;
     }
-    return size-1;
+/*Default case*/
+    return size - 1; 
 }
 
 /* Function to insert or update data in the hash table */

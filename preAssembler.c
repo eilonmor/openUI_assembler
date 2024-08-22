@@ -185,10 +185,7 @@ int preAssembler(char* fileName) {
                     } else {
 			        /*if endmacr is valid change flag to false*/
                         flagIsMacro = 0;
-			endmacrStauesChange = 0;
-/* todo: delete before send Project
-                        searchHashTableResult = searchHashTable(&hash_table, tempMacrName, 0);	
-                        fprintf(fptrAs, "%s", searchHashTableResult); */
+			            endmacrStauesChange = 0;
                     }
 		        /*if has endmacr in line but has a word or symbole before*/
                 } else if (foundContent) {

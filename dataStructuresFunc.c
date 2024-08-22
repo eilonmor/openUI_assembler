@@ -75,7 +75,7 @@ void insertOrUpdateLinkedList(LinkedList* list, char* name, char* data) {
 void printLinkedList(LinkedList* list) {
     Node* current = list->head;
     while (current != NULL) {
-        printf("Macro Name: %s, Data: %s\n", current->name, current->data);
+        printf("Name: %s, Data: %s\n", current->name, current->data);
         current = current->next;
     }
 }
@@ -154,7 +154,30 @@ char* searchHashTable(HashTable* hash_table, char* name, int index) {
 void printHashTable(HashTable* hash_table) {
     int i;
     for (i = 0; i < hash_table->size; ++i) {
-        printf("Index %d:\n", i);
+        switch (i)
+        {
+        case 0:
+            printf("Macr :\n");
+            break;
+        case 1:
+            printf("Data :\n");
+            break;
+        case 2:
+            printf("String :\n");
+            break;
+        case 3:
+            printf("entry :\n");
+            break;        
+        case 4:
+            printf("extern: \n");
+            break;
+        case 5:
+            printf("symbole :\n");
+            break;
+        default:
+            printf("Index %d:\n", i);
+            break;
+        }
         printLinkedList(&hash_table->table[i]);
     }
 }

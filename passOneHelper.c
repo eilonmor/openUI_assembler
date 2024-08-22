@@ -109,7 +109,6 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
         fprintf(stderr,"Invalid commas: there is multipal commas at line number %d\n",countRowInFile);
         errorHapend++;
     }
-    printf("L:%d\n",*L);
     removeSpaces(sourceCodeOreder);
     switch (value) {
         /*mov*/
@@ -267,7 +266,6 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token, hash_table);
-	    printf("**********************opcodeExists2: %d\n",opcodeExists);
             if (opcodeExists == 2 || opcodeExists == 3)
             {
                 isDubeleRegister++;
@@ -287,7 +285,6 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
                 /*for the target code*/
                 opcodeExists = getOpcodeMethod(token, hash_table);
-		printf("**********************opcodeExists2: %d ||| token: %s\n",opcodeExists,token);
                 if (opcodeExists == 2 || opcodeExists == 3)
                 {
                     isDubeleRegister++;
@@ -301,7 +298,6 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                     {
                         setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
                     }
-		    printf("isDubeleRegister: %d. || L: %d\n",isDubeleRegister,*L);
                     if(isDubeleRegister != 2){(*L)++;}
                 }
                 /*sub can get only 2 argument*/

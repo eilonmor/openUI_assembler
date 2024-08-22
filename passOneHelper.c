@@ -96,7 +96,7 @@ int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName
     return errorHapend;
 }
 
-int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L) {
+int opcodeExeForPassOne(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L) {
     int targetStartIndex = 3, targetEndIndex = 6, sourceStartIndex = 7, sourceEndIndex = 10;
     int errorHapend = 0, opcodeExists, isDubeleRegister = 0;
     int methodToCheck[4];

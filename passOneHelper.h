@@ -18,5 +18,5 @@ int getOpcodeMethod(char *oprand,HashTable* hash_table);
 
 int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName, int countRowInFile, int *methodValue, int howMuchMethodToCheck,HashTable* hash_table);
 
-int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L);
+int opcodeExeForPassOne(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L);
 #endif /* STRING_FUNC_H */

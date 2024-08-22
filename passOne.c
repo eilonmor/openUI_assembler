@@ -129,10 +129,10 @@ int passOne(char* fileName, HashTable* hash_table){
                 }
                 if (remainderContent != NULL)
                 {
-                    /*opcodeExe function that handele all 16 cases (mov,lea,stop....)*/
-                    errorHapend += opcodeExe(getOpcode(token_copy), remainderContent,countRowInFile, hash_table, &L);
+                    /*opcodeExeForPassOne function that handele all 16 cases (mov,lea,stop....)*/
+                    errorHapend += opcodeExeForPassOne(getOpcode(token_copy), remainderContent,countRowInFile, hash_table, &L);
                 }else{
-                    errorHapend += opcodeExe(getOpcode(token_copy), token_copy,countRowInFile, hash_table, &L);
+                    errorHapend += opcodeExeForPassOne(getOpcode(token_copy), token_copy,countRowInFile, hash_table, &L);
                 }
                 IC += L;
             }else

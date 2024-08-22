@@ -118,4 +118,23 @@ int hasMultipalCommas(char *str) {
     return 0;  /* No consecutive commas or trailing comma found found*/
 }
 
+/* Function to replace an integer with its string representation */
+void replaceIntWithString(int value, char* buffer, int buffer_size) {
+    /* Ensure the buffer is large enough and convert the integer to a string */
+    /* Note: Ensure buffer_size is sufficient for the expected integer range */
+    sprintf(buffer, "%d", value);
+}
 
+/* Function to convert string to integer with extra verification */
+int strToInt(char* str) {
+    /* Convert string to integer using atoi */
+    int value = atoi(str);
+    
+    /* Check for non-numeric strings or invalid values */
+    if (*str == '\0' || isspace(*str) || (value == 0 && str[0] != '0')) {
+        fprintf(stderr, "Error: Invalid integer string\n");
+        return -1; /* Indicate an error */
+    }
+    
+    return value;
+}

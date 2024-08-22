@@ -20,4 +20,3 @@ int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName
 
 int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L);
 #endif /* STRING_FUNC_H */
-

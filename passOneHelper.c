@@ -51,12 +51,12 @@ int getOpcodeMethod(char *oprand, HashTable* hash_table) {
     } else if (strcmp(searchHashTable(hash_table,oprand,1),"-1") != 0 || strcmp(searchHashTable(hash_table,oprand,2),"-1") != 0 || strcmp(searchHashTable(hash_table,oprand,4),"-1") != 0){
         return 1;
     }else if (oprand[0] == '*') {
-        /* Check if the rest of the string is "r1" to "r7" */
-        if (strlen(oprand) == 3 && oprand[1] == 'r' && oprand[2] >= '1' && oprand[2] <= '7') {
-            return 2;  /* String starts with * and followed by r1 to r7 */
+        /* Check if the rest of the string is "r0" to "r7" */
+        if (strlen(oprand) == 3 && oprand[1] == 'r' && oprand[2] >= '0' && oprand[2] <= '7') {
+            return 2;  /* String starts with * and followed by r0 to r7 */
         }
-    } else if (strlen(oprand) == 2 && oprand[0] == 'r' && oprand[1] >= '1' && oprand[1] <= '7') {
-        return 3;  /* String is exactly "r1" to "r7" */
+    } else if (strlen(oprand) == 2 && oprand[0] == 'r' && oprand[1] >= '0' && oprand[1] <= '7') {
+        return 3;  /* String is exactly "r0" to "r7" */
     }
 
     return -1;  /* String does not match any of the patterns */
@@ -98,16 +98,19 @@ int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName
 
 int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L) {
     int targetStartIndex = 3, targetEndIndex = 6, sourceStartIndex = 7, sourceEndIndex = 10;
-    int errorHapend = 0, opcodeExists;
+    int errorHapend = 0, opcodeExists, isDubeleRegister = 0;
     int methodToCheck[4];
     char *token;
     set binaryMachineCode;
+    *L = 1;
     errorHapend = hasMultipalCommas(sourceCodeOreder);
     if (errorHapend)
     {
         fprintf(stderr,"Invalid commas: there is multipal commas at line number %d\n",countRowInFile);
         errorHapend++;
     }
+    printf("L:%d\n",*L);
+    removeSpaces(sourceCodeOreder);
     switch (value) {
         /*mov*/
         case 0:
@@ -115,11 +118,16 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token,hash_table);
+            if (opcodeExists == 2 || opcodeExists == 3)
+            {
+                isDubeleRegister++;
+            }
             if (opcodeExists != -1 && !(errorHapend))
             {
                 /*write the surce code*/
                 setOpcodeBit(binaryMachineCode,opcodeExists+sourceStartIndex, sourceStartIndex,sourceEndIndex);
-            }            
+            }   
+            (*L)++;         
             token = strtok(NULL, ",");
             /*if there is only 1 argument so print error*/
             if (token == NULL){
@@ -129,7 +137,12 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
                 /*for the target code*/
                 opcodeExists = getOpcodeMethod(token, hash_table);
-                if (getOpcodeMethod(token, hash_table) == 0){
+                if (opcodeExists == 2 || opcodeExists == 3)
+                {
+                    isDubeleRegister++;
+                }
+
+                if (opcodeExists == 0){
                     fprintf(stderr,"Error: mov cant get method 0 for target addressing at line number %d\n",countRowInFile);
                     errorHapend++;
                 }else{
@@ -137,6 +150,10 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                     if (opcodeExists != -1 && !(errorHapend))
                     {
                         setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
+                    }
+                    if (isDubeleRegister != 2)
+                    {
+                        (*L)++;
                     }
                 }
                 /*move can get only 2 argument*/
@@ -153,11 +170,16 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token, hash_table);
+            if (opcodeExists == 2 || opcodeExists == 3)
+            {
+                isDubeleRegister++;
+            }
             if (opcodeExists != -1 && !(errorHapend))
             {
                 /*write the surce code*/
                 setOpcodeBit(binaryMachineCode,opcodeExists+sourceStartIndex, sourceStartIndex,sourceEndIndex);
-            }            
+            }
+            (*L)++;            
             token = strtok(NULL, ",");
             /*if there is only 1 argument so print error*/
             if (token == NULL){
@@ -167,11 +189,19 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
             /*for the target code*/
                 opcodeExists = getOpcodeMethod(token, hash_table);
+                if (opcodeExists == 2 || opcodeExists == 3)
+                {
+                    isDubeleRegister++;
+                }
                 /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
                 if (opcodeExists != -1 && !(errorHapend))
                 {
                     setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
                 }
+                if (isDubeleRegister != 2)
+                {
+                    (*L)++;
+                }                
                 /*cmp can get only 2 argument*/
                 token = strtok(NULL, ",");
                 if (token != NULL){
@@ -186,11 +216,16 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token, hash_table);
+            if (opcodeExists == 2 || opcodeExists == 3)
+            {
+                isDubeleRegister++;
+            }
             if (opcodeExists != -1 && !(errorHapend))
             {
                 /*write the surce code*/
                 setOpcodeBit(binaryMachineCode,opcodeExists+sourceStartIndex, sourceStartIndex,sourceEndIndex);
-            }            
+            } 
+            (*L)++;           
             token = strtok(NULL, ",");
             /*if there is only 1 argument so print error*/
             if (token == NULL){
@@ -200,6 +235,10 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
                 /*for the target code*/
                 opcodeExists = getOpcodeMethod(token, hash_table);
+                if (opcodeExists == 2 || opcodeExists == 3)
+                {
+                    isDubeleRegister++;
+                }
                 if (getOpcodeMethod(token, hash_table) == 0){
                     fprintf(stderr,"Error: add cant get method 0 for target addressing at line number %d\n",countRowInFile);
                     errorHapend++;
@@ -209,6 +248,10 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                     {
                         setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
                     }
+                    if (isDubeleRegister != 2)
+                    {
+                        (*L)++;
+                    }   
                 }
                 /*add must get only 2 argument*/
                 token = strtok(NULL, ",");
@@ -224,11 +267,17 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token, hash_table);
+	    printf("**********************opcodeExists2: %d\n",opcodeExists);
+            if (opcodeExists == 2 || opcodeExists == 3)
+            {
+                isDubeleRegister++;
+            }
             if (opcodeExists != -1 && !(errorHapend))
             {
                 /*write the surce code*/
                 setOpcodeBit(binaryMachineCode,opcodeExists+sourceStartIndex, sourceStartIndex,sourceEndIndex);
             }            
+            (*L)++;
             token = strtok(NULL, ",");
             /*if there is only 1 argument so print error*/
             if (token == NULL){
@@ -238,6 +287,11 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
                 /*for the target code*/
                 opcodeExists = getOpcodeMethod(token, hash_table);
+		printf("**********************opcodeExists2: %d ||| token: %s\n",opcodeExists,token);
+                if (opcodeExists == 2 || opcodeExists == 3)
+                {
+                    isDubeleRegister++;
+                }
                 if (getOpcodeMethod(token, hash_table) == 0){
                     fprintf(stderr,"Error: sub cant get method 0 for target addressing at line number %d\n",countRowInFile);
                     errorHapend++;
@@ -247,6 +301,8 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                     {
                         setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
                     }
+		    printf("isDubeleRegister: %d. || L: %d\n",isDubeleRegister,*L);
+                    if(isDubeleRegister != 2){(*L)++;}
                 }
                 /*sub can get only 2 argument*/
                 token = strtok(NULL, ",");
@@ -262,6 +318,10 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             token = strtok(sourceCodeOreder, ",");
             /*check if the oprand is valid its ok to get invalid (like label that are not defiend yet.)*/
             opcodeExists = getOpcodeMethod(token, hash_table);
+            if (opcodeExists == 2 || opcodeExists == 3)
+            {
+                isDubeleRegister++;
+            }
             if (opcodeExists == 0 || opcodeExists == 2 || opcodeExists == 3)
             {
                 fprintf(stderr,"Error: lea cant get method 0 or 2 or 3 for source addressing at line number %d\n",countRowInFile);
@@ -270,7 +330,8 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
                 /*write the surce code*/
                 setOpcodeBit(binaryMachineCode,opcodeExists+sourceStartIndex, sourceStartIndex,sourceEndIndex);
-            }            
+            }
+            (*L)++;            
             token = strtok(NULL, ",");
             /*if there is only 1 argument so print error*/
             if (token == NULL){
@@ -280,6 +341,10 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
             {
                 /*for the target code*/
                 opcodeExists = getOpcodeMethod(token, hash_table);
+                if (opcodeExists == 2 || opcodeExists == 3)
+                {
+                    isDubeleRegister++;
+                }
                 if (getOpcodeMethod(token, hash_table) == 0){
                     fprintf(stderr,"Error: lea cant get method 0 for target addressing at line number %d\n",countRowInFile);
                     errorHapend++;
@@ -289,6 +354,7 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
                     {
                         setOpcodeBit(binaryMachineCode, getOpcodeMethod(token, hash_table)+targetStartIndex, targetStartIndex,targetEndIndex);
                     }
+                    if(isDubeleRegister != 2){(*L)++;}
                 }
                 /*lea can get only 2 argument*/
                 token = strtok(NULL, ",");
@@ -302,55 +368,91 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
         case 5:
             methodToCheck[0] = 0;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"clr",countRowInFile,methodToCheck,1,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*not*/
         case 6:
             methodToCheck[0] = 0;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"not",countRowInFile,methodToCheck,1,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*inc*/
         case 7:
             methodToCheck[0] = 0;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"inc",countRowInFile,methodToCheck,1,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*dec*/
         case 8:
             methodToCheck[0] = 0;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"dec",countRowInFile,methodToCheck,1,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*jmp*/
         case 9:
             methodToCheck[0] = 0;
             methodToCheck[1] = 3;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"jmp",countRowInFile,methodToCheck,2,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*bne*/
         case 10:
             methodToCheck[0] = 0;
             methodToCheck[1] = 3;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"bne",countRowInFile,methodToCheck,2,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*red*/
         case 11:
             methodToCheck[0] = 0;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"red",countRowInFile,methodToCheck,1,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*prn*/
         case 12:
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"prn",countRowInFile,methodToCheck,0,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*jsr*/
         case 13:
             methodToCheck[0] = 0;
             methodToCheck[1] = 3;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"jsr",countRowInFile,methodToCheck,2,hash_table);
+            if (!(errorHapend))
+            {
+                (*L)++;
+            }
             break;
         /*rts*/
         case 14:
-             methodToCheck[0] = 0;
-    	     methodToCheck[1] = 1;
-    	     methodToCheck[2] = 2;
-    	     methodToCheck[3] = 3;
+            methodToCheck[0] = 0;
+    	    methodToCheck[1] = 1;
+    	    methodToCheck[2] = 2;
+    	    methodToCheck[3] = 3;
             errorHapend += opcodeHelper(sourceCodeOreder,binaryMachineCode,"rts",countRowInFile,methodToCheck,4,hash_table);
             break;
         /*stop*/
@@ -367,4 +469,3 @@ int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* h
     }
     return errorHapend;
 }
-

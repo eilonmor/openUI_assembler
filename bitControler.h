@@ -28,6 +28,3 @@ int get_cell_value(ram_array array, int cell_index);
 char* cell_to_binary_string(int value);
 /* Sets the bits at spesific range based on the binary representation of the given value (0 to 15). */
 void setOpcodeBit(set array, int value, int startIndex, int endIndex);
-
-
-

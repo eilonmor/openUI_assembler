@@ -8,11 +8,9 @@
 #define maxCharsInRow 80
 #define MAX_DC_CHAR 5
 
-
-
 int passOne(char* fileName, HashTable* hash_table){
     FILE* fptr;
-    int IC = 0, DC = 0, L, countRowInFile =1, i = 0;
+    int IC = 0, DC = 0, L=0, countRowInFile =1, i = 0;
     int errorHapend = 0;
     char content[maxCharsInRow];
     char *token;
@@ -36,24 +34,22 @@ int passOne(char* fileName, HashTable* hash_table){
             /*if it symbole*/
             if (token[strlen(token) - 1] == ':'){ 
                 /*symbole are exsist*/
-		printf("token: |%s|\n",token);
+		        printf("token: |%s|\n",token);
                 if (strcmp(searchHashTable(hash_table,token,-1), "-1") != 0){
                     fprintf(stderr,"%s is allready defined. error happend at line number %d. (forme)\n",token,countRowInFile);
                 }else{
                     thereIsSymbole = 1;
                     symboleNane = strduppp(token);
-		    printf("symboleNane: %s\n",symboleNane);
-		    removeSpaces(symboleNane);
+		            printf("symboleNane: %s\n",symboleNane);
+		            removeSpaces(symboleNane);
                 }
             /*.data command or string*/    
             }else if (strcmp(token, ".string") == 0 || strcmp(token, ".data") == 0)
             {
                 tempName = strduppp(token);
                 token = strtok(NULL, "");
-		token_copy = strduppp(token);
+		        token_copy = strduppp(token);
                 /*search for unvalid commas like " ,  ," or ",1,2 " or " 1 , " */
-		/*delete*/
-		printf("token before hasMultipalCommas: |%s|\n",token);
                 errorHapend = hasMultipalCommas(token);
                 if (errorHapend){
                     fprintf(stderr,"Invalid commas: there is multipal commas at line number %d \n",countRowInFile);
@@ -70,12 +66,10 @@ int passOne(char* fileName, HashTable* hash_table){
                     while(tokenCommas != NULL){
                         while (tokenCommas[i] != '\0')
                         {
-			    if (tokenCommas[i] >= 32 && tokenCommas[i] <= 126){
+                            /*set each char*/
                             set_cell_value(RAM_memoery,DC,(int)tokenCommas[i]);
-                            DC++;
-			    }
-			    printf("DC: |%d| ** tokenCommas[%d] = |%c| (ASCII: %d)\n",DC,i,tokenCommas[i],(int)tokenCommas[i]);
                             i++;
+                            DC++;
                         }
                         set_cell_value(RAM_memoery,DC,0);                        
                         DC ++;
@@ -95,7 +89,6 @@ int passOne(char* fileName, HashTable* hash_table){
                     while(tokenCommas != NULL){
                         set_cell_value(RAM_memoery,DC,tokenCommasInt);
                         DC++;
-			printf("DC: |%d| ** tokenCommas:|%s|\n",DC,tokenCommas);
                         tokenCommas = strtok(NULL,",");
                     }
                 }    
@@ -105,7 +98,7 @@ int passOne(char* fileName, HashTable* hash_table){
                     token = strtok(NULL," ");
                     while (token != NULL)
                     {
-                        if (strcmp(searchHashTable(hash_table,token,-1), "-1") != 0)
+                        if (strcmp(searchHashTable(hash_table,token,-1), "-1") == 0)
                         {
                             errorHapend++;
                             fprintf(stderr,"Duplicate defnition: there is allready variable named: '%s'. you cant import (extern) variable with the same name. error hapend at line: %d.\n",token,countRowInFile);
@@ -128,6 +121,7 @@ int passOne(char* fileName, HashTable* hash_table){
                     sprintf(convertIntToStringBuffer, "%d", IC);
                     insertOrUpdateHashTable(hash_table, ".symbole", symboleNane, convertIntToStringBuffer);
                     thereIsSymbole = 0;
+                    IC++;
                 }
                 if (remainderContent != NULL)
                 {
@@ -137,7 +131,6 @@ int passOne(char* fileName, HashTable* hash_table){
                 }else{
                     errorHapend += opcodeExe(getOpcode(token_copy), token_copy,countRowInFile, hash_table, &L);
                 }
-		printf("passOne L:%d\n",L);
                 IC += L;
             }else
             {
@@ -149,18 +142,7 @@ int passOne(char* fileName, HashTable* hash_table){
 	    if (token != NULL){removeSpaces(token);}
         }
 	countRowInFile++;
-        
     }
-    printHashTable(hash_table);
-    if (IC<1)
-    {
-        addValueToHashTable(hash_table, 1, 100);
-        addValueToHashTable(hash_table, 2, 100);
-    }else{
-        addValueToHashTable(hash_table, 1, 101+IC-L);
-        addValueToHashTable(hash_table, 2, 101+IC-L);
-    }
-    addValueToHashTable(hash_table, 5, 100);
     printHashTable(hash_table);
     fclose(fptr);
     return errorHapend;

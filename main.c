@@ -11,7 +11,6 @@ int main(int argc, char* argv[]) {
     int preAsseblerResult;
     char *inputFile;
     HashTable hash_table;
-    initHashTable(&hash_table, 6);
     if (argc==1)
     {
         fprintf(stderr, "You did not provide a file, please provide at least 1 text file.\n");
@@ -19,17 +18,18 @@ int main(int argc, char* argv[]) {
     }
     for (i = 1; i < argc; i++)
     {
+	initHashTable(&hash_table, 6);
 	inputFile = convertFile(argv[i],".as");
 	/*preAssembler return the number of error*/
         preAsseblerResult = preAssembler(inputFile);
 	if (preAsseblerResult){
 	    continue;	
 	}else{
-	    freeHashTable(&hash_table);
-	    initHashTable(&hash_table, 6);
 	    inputFile = convertFile(argv[i],".am");
 	    preAsseblerResult = passOne(inputFile, &hash_table);
+	    if (preAsseblerResult){printf("error!!!!\n");}
 	}
+	freeHashTable(&hash_table);
     }
     return 0;
 }

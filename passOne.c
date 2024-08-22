@@ -10,7 +10,7 @@
 
 
 
-int passOne(char* fileName, HashTable* hash_table){
+int passTwo(char* fileName, HashTable* hash_table){
     FILE* fptr;
     int IC = 0, DC = 0, L, countRowInFile =1, i = 0;
     int errorHapend = 0;
@@ -149,9 +149,9 @@ int passOne(char* fileName, HashTable* hash_table){
                 {
                     printf("debug: key: remainderContent  value: %s\n",remainderContent);
                     /*opcodeExe function that handele all 16 cases (mov,lea,stop....)*/
-                    errorHapend += opcodeExe(getOpcode(token_copy), remainderContent,countRowInFile, hash_table, &L);
+                    errorHapend += opcodeExeForPassTwo(getOpcode(token_copy), remainderContent,countRowInFile, hash_table, &L);
                 }else{
-                    errorHapend += opcodeExe(getOpcode(token_copy), token_copy,countRowInFile, hash_table, &L);
+                    errorHapend += opcodeExeForPassTwo(getOpcode(token_copy), token_copy,countRowInFile, hash_table, &L);
                 }
                 IC += L;                  
             }else

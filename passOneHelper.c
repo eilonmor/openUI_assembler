@@ -150,7 +150,7 @@ int opcodeHelper(char *sourceCodeOreder, set binaryMachineCode, char *methodName
     return errorHapend;
 }
 
-int opcodeExe(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L,ram_array array, int cell_index) {
+int opcodeExeForPassTwo(int value, char *sourceCodeOreder, int countRowInFile,HashTable* hash_table, int *L,ram_array array, int cell_index) {
     int targetStartIndex = 3, targetEndIndex = 6, sourceStartIndex = 7, sourceEndIndex = 10;
     int registerTargetStart = 3, registerTargetEnd = 5, registerSourceStart = 6, registerSourceEnd = 8;
     int errorHapend = 0, opcodeExists, getOpcodeMethodSystemNumber;

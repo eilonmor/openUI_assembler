@@ -18,4 +18,10 @@ char *convertFile(char *filename, char *newFileType);
 
 int hasMultipalCommas(char *str);
 
+/* Function to convert string to integer with extra verification */
+int strToInt(char* str);
+
+/* Function to replace an integer with its string representation */
+void replaceIntWithString(int value, char* buffer, int buffer_size);
+
 #endif /* STRING_FUNC_H */

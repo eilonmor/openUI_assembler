@@ -52,4 +52,7 @@ void freeLinkedList(LinkedList* list);
 /* Function to free the hash table */
 void freeHashTable(HashTable* hash_table);
 
+/* Function to add value to each node in a specific index of the hash table */
+void addValueToHashTable(HashTable* hash_table, int index, int value_to_add);
+
 #endif /* DATA_STRUCT_H */

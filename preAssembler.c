@@ -104,7 +104,7 @@ int preAssembler(char* fileName) {
     FILE* fptrAs;
     char *token;
     int flagIsMacro;
-    int errorHapendesCount;
+    int errorHapendesCount, atListOneMacr = 0;
     int countRowInFile;
     int endmacrStauesChange;
     char *tempMacrName;
@@ -127,7 +127,7 @@ int preAssembler(char* fileName) {
     errorHapendesCount = 0;
     flagIsMacro = 0;
     initConstantNames();
-    initHashTable(&hash_table, 5);
+    initHashTable(&hash_table, 6);
     /*get each row in the file.*/
     while (fgets(content, maxCharsInRow, fptr)) {
         removeLeadingSpacesAndTrailing(content);
@@ -161,6 +161,7 @@ int preAssembler(char* fileName) {
                     }
                     /*check if macr name is valid (macr name can be only one word.)*/
                     tempMacrName = strduppp(token);
+		    atListOneMacr++;
                     token = strtok(NULL, " ");
                     if (token != NULL) {
 			errorHapendesCount++;
@@ -184,10 +185,7 @@ int preAssembler(char* fileName) {
                     } else {
 			        /*if endmacr is valid change flag to false*/
                         flagIsMacro = 0;
-			endmacrStauesChange = 0;
-/* todo: delete before send Project
-                        searchHashTableResult = searchHashTable(&hash_table, tempMacrName, 0);	
-                        fprintf(fptrAs, "%s", searchHashTableResult); */
+			            endmacrStauesChange = 0;
                     }
 		        /*if has endmacr in line but has a word or symbole before*/
                 } else if (foundContent) {
@@ -223,7 +221,7 @@ int preAssembler(char* fileName) {
     freeConstantNames();
     freeHashTable(&hash_table);
     free(tempName);
-    free(tempMacrName);
+    if (atListOneMacr){free(tempMacrName);}
     fclose(fptr);
     fclose(fptrAs);
     if (errorHapendesCount > 0) {

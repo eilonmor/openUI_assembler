@@ -75,7 +75,7 @@ void insertOrUpdateLinkedList(LinkedList* list, char* name, char* data) {
 void printLinkedList(LinkedList* list) {
     Node* current = list->head;
     while (current != NULL) {
-        printf("Macro Name: %s, Data: %s\n", current->name, current->data);
+        printf("Name: %s, Data: %s\n", current->name, current->data);
         current = current->next;
     }
 }
@@ -125,8 +125,9 @@ char* searchHashTable(HashTable* hash_table, char* name, int index) {
     Node* current;
     int i;
     if (index < 0 || index >= hash_table->size) {
-        /* Search in all indexes */
+        /* Search in all indexes except entry*/
         for (i = 0; i < hash_table->size; ++i) {
+	    if (i == 3){continue;}
             list = &hash_table->table[i];
             current = list->head;
             while (current != NULL) {
@@ -154,7 +155,30 @@ char* searchHashTable(HashTable* hash_table, char* name, int index) {
 void printHashTable(HashTable* hash_table) {
     int i;
     for (i = 0; i < hash_table->size; ++i) {
-        printf("Index %d:\n", i);
+        switch (i)
+        {
+        case 0:
+            printf("Macr :\n");
+            break;
+        case 1:
+            printf("Data :\n");
+            break;
+        case 2:
+            printf("String :\n");
+            break;
+        case 3:
+            printf("entry :\n");
+            break;        
+        case 4:
+            printf("extern: \n");
+            break;
+        case 5:
+            printf("symbole :\n");
+            break;
+        default:
+            printf("Index %d:\n", i);
+            break;
+        }
         printLinkedList(&hash_table->table[i]);
     }
 }
@@ -179,4 +203,33 @@ void freeHashTable(HashTable* hash_table) {
         freeLinkedList(&hash_table->table[i]);
     }
     free(hash_table->table);
+}
+/* Function to add value to each node in a specific index of the hash table */
+void addValueToHashTable(HashTable* hash_table, int index, int value_to_add) {
+    int current_value;
+    char new_data[20];
+    LinkedList* list = &hash_table->table[index];
+    Node* current;
+    if (index < 0 || index >= hash_table->size) {
+        fprintf(stderr, "Error: Index out of bounds\n");
+        return;
+    }
+    current = list->head;
+    while (current != NULL) {
+        /* Convert the current node's data from string to integer */
+        current_value = strToInt(current->data);
+        if (current_value == -1) {
+            fprintf(stderr, "Error: Invalid data in node\n");
+            current = current->next;
+            continue;
+        }
+        /* Add the specified value to the integer and update the node's data */
+        current_value += value_to_add;
+        /* Convert the updated integer value back to a string */
+        replaceIntWithString(current_value, new_data, sizeof(new_data));
+        /* Free the old data and update the node */
+        free(current->data);
+        current->data = strduppp(new_data); /* Assuming strduppp is used for duplication */     
+        current = current->next;
+    }
 }
